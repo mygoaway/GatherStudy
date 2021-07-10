@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="reservation">
+    <!-- 카페 예약하기  -->
+    <insert id="reservate" parameterType="Reservation">
+        insert into Reservation(reser_price, reser_date, reser_time, reser_usertime, reser_category,
+                reser_person, reser_request, reser_orderDate, reser_status, reser_evaluationCheck, member_id, cafe_id) 
+        values (#{reser_usertime} * #{reser_person} * #{reser_categoryPersonPrice}, #{reser_date}, #{reser_time}, #{reser_usertime}, #{reser_category},
+                #{reser_person}, #{reser_request}, NOW(), 'READY', 'NO', #{member_id}, #{cafe_id})
+    </insert>
+    
+     <!-- 현재일 기준으로 사용일이 지난 예약은 USED로 변경하기 -->
+   	<update id="orderUsed">
+	   update Reservation set reser_status='USED' where reser_status='READY' and 
+	
+	<![CDATA[
+ 	   reser_date < NOW()
+    ]]>
+	</update>
+	
+    <!-- 회원당 예약내역 보기 -->
+    <select id="getMemberOrders" resultType="MemberOrderList" parameterType="String">
+		select r.reser_number, c.cafe_name, r.reser_time, r.reser_usertime, r.reser_price, DATE_FORMAT(reser_orderdate, '%Y.%m.%d.') as reser_orderdate,
+        DATE_FORMAT(reser_date, '%Y.%m.%d.') as reser_date, r.reser_category, r.reser_person, r.reser_request, r.reser_status, r.member_id, r.cafe_id, r.reser_evaluationCheck
+		from Reservation r, Cafe c
+		where r.cafe_id = c.cafe_id and r.member_id=#{member_id} order by r.reser_number desc
+   </select>
+   
+   <!-- 회원당 예약내역 갯수 확인하기 -->
+   <select id="getOrderNum" parameterType="String" resultType="int">
+ 	 select count(*) from Reservation where member_id =#{member_id}
+   </select>
+   
+   <!-- 회원/스터디 카페에서 예약 취소하기 -->
+	<update id="orderCancel" parameterType="String">
+	   update Reservation set reser_status='CANCEL' where reser_number=#{reser_number}
+	</update>
+   
+   <!-- 회원당 구매후기 관련 리스트 불러오기(사용한 예약만 불러오기) -->
+   <select id="orderEvaluationList" parameterType="String" resultType="MemberOrderList">
+ 	 	select r.reser_number, c.cafe_name, r.reser_time, r.reser_usertime, r.reser_price, DATE_FORMAT(reser_orderdate, '%Y.%m.%d.') as reser_orderdate,
+        DATE_FORMAT(reser_date, '%Y.%m.%d.') as reser_date, r.reser_category, r.reser_person, r.reser_request, r.reser_status, r.member_id, r.cafe_id, r.reser_evaluationCheck
+		from Reservation r, Cafe c
+		where r.cafe_id = c.cafe_id and r.member_id=#{member_id} and reser_status='USED' order by r.reser_number desc
+   </select>
+
+   <!-- 회원당 구매후기 관련 갯수 불러오기(사용한 예약만 불러오기) - 갯수체크 -->
+   <select id="orderEvaluationNum" parameterType="String" resultType="int">
+ 	 select count(*) from Reservation where member_id =#{member_id} and reser_status='USED'
+   </select>
+   
+   <!-- 예약번호로 예약한 내용 끌고오기  -->
+   <select id="getOrderOneByReser_number" parameterType="int" resultType="MemberOrderList">
+ 	 select r.reser_number, c.cafe_name, r.reser_time, r.reser_usertime, r.reser_price, DATE_FORMAT(reser_orderdate, '%Y.%m.%d.') as reser_orderdate,
+        DATE_FORMAT(reser_date, '%Y.%m.%d.') as reser_date, r.reser_category, r.reser_person, r.reser_request, r.reser_status, r.member_id, r.cafe_id, r.reser_evaluationCheck
+		from Reservation r, Cafe c
+		where r.cafe_id = c.cafe_id and r.reser_number=#{reser_number} 
+   </select>
+   
+
+   <!-- 스터디 카페당 예약내역 보기 -->
+    <select id="getCafeOrders" resultType="MemberOrderList" parameterType="String">
+		select r.reser_number, c.cafe_name, r.reser_time, r.reser_usertime, r.reser_price, DATE_FORMAT(reser_orderdate, '%Y.%m.%d.') as reser_orderdate,
+        DATE_FORMAT(reser_date, '%Y.%m.%d.') as reser_date, r.reser_category, r.reser_person, r.reser_request, r.reser_status, r.member_id, r.cafe_id, r.reser_evaluationCheck
+		from Reservation r, Cafe c
+		where r.cafe_id = c.cafe_id and c.cafe_id=#{cafe_id} order by r.reser_number desc
+   </select>
+   
+   <!-- 스터디 카페당 구매후기 관련 리스트 불러오기(사용한 예약만 불러오기) -->
+   <select id="getCafeOrdersUsed" parameterType="String" resultType="MemberOrderList">
+ 	 	select r.reser_number, c.cafe_name, r.reser_time, r.reser_usertime, r.reser_price, DATE_FORMAT(reser_orderdate, '%Y.%m.%d.') as reser_orderdate,
+        DATE_FORMAT(reser_date, '%Y.%m.%d.') as reser_date, r.reser_category, r.reser_person, r.reser_request, r.reser_status, r.member_id, r.cafe_id, r.reser_evaluationCheck
+		from Reservation r, Cafe c
+		where r.cafe_id = c.cafe_id and r.cafe_id=#{cafe_id} and reser_status='USED' order by r.reser_number desc
+   </select>
+   
+   <!-- 예약번호로 후기 남긴 내용 불러오기 -->
+   <select id="getEvaluationOneByReser_number" parameterType="int" resultType="Evaluation">
+ 	 select * from Order_evaluation where reser_number=#{reser_number} 
+   </select>
+</mapper>

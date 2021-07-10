@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+    <!-- 콘솔에 출력하는 부분(날짜시간에 맞게 내용을 출력) -->
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p:%C{1}.%M()] %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- 로그객체가 디버그모드상태인 경우 출력하라
+         (출력대상자를 지정할 수가 있다)
+           category name="디버깅모드일때 출력할 패키지명을 지정(최상위패키지명...
+            ex)com.board의 하위패키지내의 모든 클래스가 검사대상
+          -->
+    <category name="com" additivity="false">
+        <priority value="debug"/>
+        <appender-ref ref="STDOUT"/>
+    </category>
+
+    <!-- 에러발생시 출력시켜주는 옵션 -->
+    <root>
+        <priority value="error"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</log4j:configuration>
+

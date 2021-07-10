@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="find">
+
+<!--1.게시글 목록보기  -->
+<select  id="findList"  parameterType="map"  resultType="Find"  >
+    select find_number, find_title, find_content, DATE_FORMAT(find_regdate, '%Y.%m.%d.') AS find_regdate, find_hit, member_id
+                from (select * from find
+                   <where>
+                     <if test="keyWord!=null and keyField=='title'">
+                            find_title like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                     <if test="keyWord!=null and keyField=='content'">
+                            find_content like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                     <if test="keyWord!=null and keyField=='all'">
+                            find_title like CONCAT('%',#{keyWord},'%')   or
+                            find_content like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                   </where>        
+                     order by find_regdate desc) a limit #{start}, #{end}
+</select>
+
+<!--2.검색어에 해당하는 총레코드수 구하기 -->
+ <select id="allSelect" parameterType="map" resultType="Integer">
+    select count(*) from find
+                <where>
+                     <if test="keyWord!=null and keyField=='title'">
+                            find_title like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                     <if test="keyWord!=null and keyField=='content'">
+                            find_content like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                     <if test="keyWord!=null and keyField=='all'">
+                            find_title like CONCAT('%',#{keyWord},'%')   or
+                            find_content like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                 </where>
+ </select>
+ 
+<!-- 3.게시글 쓰기 -->
+<insert id="findWrite" parameterType="Find">
+    insert into find(find_title, find_content, find_regdate, find_hit, member_id)
+    values(#{find_title}, #{find_content}, now(), 0, #{member_id})
+</insert>
+
+<!-- 4.게시글 상세보기(조회수증가)  -->
+<update id="readcntIncrease" parameterType="int">
+   update find set find_hit=find_hit+1 where find_number=#{find_number}
+</update>
+
+<!-- 5.게시글 번호에 해당하는 레코드 한개 얻어오기 -->
+<select id="getRetrieve" parameterType="int" resultType="Find">
+    select * from find where find_number=#{find_number}
+</select>
+ 
+<!-- 6.게시글 수정하기 -->
+<update id="findUpdate" parameterType="Find">
+ 	update find set find_title=#{find_title}, find_content=#{find_content} where find_number=#{find_number}
+</update>
+ 
+<!-- 7.게시글 삭제하기 -->
+<delete id='findDelete' parameterType="int">
+	delete from find where find_number=#{find_number}
+</delete>
+ 
+ 
+ <!-- 댓글 관련 기능 -->
+ <!-- 1. 댓글 개수-->
+<select id="replyCount" resultType="int" parameterType="int">
+	select count(*) from find_reply where find_number=#{find_number}
+</select>
+    
+<!-- 2. 댓글 목록 -->
+<select id="replyList" resultType="FindReply" parameterType="int">
+	select * from find_reply where find_number=#{find_number} 
+	order by find_reply_regdate asc
+</select>
+    
+<!-- 3. 댓글 작성 -->
+<insert id="replyWrite" parameterType="FindReply">
+insert into find_reply (find_reply_content, find_reply_regdate, find_number, member_id)
+        values(#{find_reply_content}, now(), #{find_number}, #{member_id}) 
+</insert>
+    
+<!-- 4. 댓글 삭제 -->
+<delete id="replyDelete" parameterType="int">
+	delete from find_reply where find_reply_number=#{find_reply_number}
+</delete>
+
+
+</mapper>

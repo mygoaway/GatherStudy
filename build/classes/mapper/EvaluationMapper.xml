@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="evaluation">
+
+<!--1. 스터디 카페당 후기 보기  -->
+<select  id="evaluation_list"  parameterType="String"  resultType="Evaluation"  >
+    select order_eval_id, order_eval_title, order_eval_content, DATE_FORMAT(order_eval_regdate, '%Y.%m.%d.') as order_eval_regdate, order_eval_score, cafe_id, member_id 
+    from Order_evaluation 
+    where cafe_id=#{cafe_id}
+    order by order_eval_id desc LIMIT 0, 3;
+</select>
+
+<!--2. 전체 후기 보기  -->
+<select  id="evaluation_total_list" resultType="TotalEvaluation"  >
+    select  c.cafe_id as cafe_id, c.cafe_image1 as cafe_image1, c.cafe_name as cafe_name, o.member_id as member_id, o.order_eval_score as order_eval_score, o.order_eval_content as order_eval_content 
+    from Cafe c, Order_evaluation o 
+	where c.cafe_id = o.cafe_id 
+	order by o.order_eval_id desc LIMIT 0, 5;
+</select>
+
+<!--3. 스터디 카페당 댓글 불러오기  -->
+<select  id="evaluation_reply_list" parameterType="String" resultType="EvaluationReply"  >
+    select  order_eval_reply_content, DATE_FORMAT(order_eval_reply_regdate, '%Y.%m.%d.') as order_eval_reply_regdate, order_eval_id, cafe_id 
+    from Order_evaluation_reply 
+    where cafe_id = #{cafe_id}
+</select>
+
+<!-- 4. 스터디 카페당 후기 개수 추출하기  -->
+<select  id="getEvaluationRows"  parameterType="String"  resultType="int"  >
+    select count(*) 
+    from Order_evaluation 
+    where cafe_id=#{cafe_id}
+</select>
+
+<!-- 5. 후기 작성하기 -->
+<insert id="evaluationWrite" parameterType="Evaluation">
+    insert into Order_evaluation(order_eval_title, order_eval_content, order_eval_regdate, order_eval_score, cafe_id, member_id, reser_number)
+    values(#{order_eval_title},#{order_eval_content}, now(), #{order_eval_score}, #{cafe_id}, #{member_id}, #{reser_number})
+</insert>
+
+<!-- 6. 후기 작성 후 후기작성여부 YES로 변경하기 -->
+<update id="evaluationCheckChange" parameterType="int">
+   update Reservation set reser_evaluationCheck='YES' 
+   where reser_number=#{reser_number}
+</update>
+	
+<!--7. 회원이 작성한 스터디 카페 후기 보기  -->
+<select  id="evaluation_list_byMemberId" parameterType="String" resultType="TotalEvaluation"  >
+    select  cafe_id, cafe_image1, cafe_name, member_id, order_eval_score, order_eval_content, DATE_FORMAT(order_eval_regdate, '%Y.%m.%d.') as order_eval_regdate, order_eval_id
+    from (select c.cafe_id, c.cafe_image1, c.cafe_name, o.member_id, o.order_eval_score, o.order_eval_content, o.order_eval_regdate, o.order_eval_id 
+    	from Cafe c, Order_evaluation o 
+		where c.cafe_id = o.cafe_id and o.member_id=#{member_id}) c
+    order by order_eval_id desc LIMIT 0, 15;
+</select>
+
+<!-- 8.회원이 작성한 스터디 카페 후기에 대한 댓글 보기 => 스터디 카페 전체 댓글 불러오기 -->
+<select  id="evaluation_reply_Entrylist" resultType="EvaluationReply"  >
+    select  order_eval_reply_content, DATE_FORMAT(order_eval_reply_regdate, '%Y.%m.%d.') as order_eval_reply_regdate, order_eval_id, cafe_id 
+    from Order_evaluation_reply
+</select>
+
+<!-- 9. 고객이 남겨주신 후기에 대해서 댓글 작성하기 -->
+<insert id="evaluationReplyWrite" parameterType="EvaluationReply">
+    insert into Order_evaluation_reply
+    values(#{order_eval_reply_content}, now(), #{order_eval_id}, #{cafe_id})
+</insert>
+
+</mapper>

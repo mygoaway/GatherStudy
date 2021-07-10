@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cafe">
+
+<!--1. 오늘의 추천 스터디 카페 보기 -->
+<select  id="recommendCafe" resultType="Cafe"  >
+	select * 
+	from Cafe
+	order by cafe_regdate desc LIMIT 0, 5;
+</select>
+
+<!--2. 스터디 카페 전체 리스트 보기  -->
+<select id="lookcafe" resultType="Cafe">
+    select *
+    from Cafe
+</select>
+
+<!--3. 새로 오픈한 스터디 카페 보기 -->
+<select  id="newCafe" resultType="Cafe"  >
+    select *
+    from Cafe
+    order by cafe_regdate desc LIMIT 0, 5;
+</select>
+
+<!--4. 카페 상세 내용보기  -->
+<select id="list" resultType="Cafe" parameterType="String">
+    select * 
+    from Cafe 
+    where cafe_id=#{id}
+</select>
+
+<!--5. 아이디값으로 아이디, 패스워드 정보 갖고오기  -->
+<select id="getCafe" resultType="Cafe" parameterType="Cafe">
+    select cafe_id, cafe_pwd
+    from Cafe
+    where cafe_id = #{cafe_id}
+</select>
+</mapper>

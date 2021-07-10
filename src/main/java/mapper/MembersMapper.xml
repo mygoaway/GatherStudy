@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="members">
+
+    <!-- 1. 중복 id 체크하기 -->
+    <select id="idCheck" resultType="int" parameterType="Members">
+        SELECT count(*)
+        FROM Members
+        where member_id = #{member_id}
+    </select>
+
+    <!-- 2. 회원 가입 하기 -->
+    <insert id="userJoin" parameterType="Members">
+        insert into Members
+        values (#{member_id}, #{member_pwd}, #{member_name}, HEX(AES_ENCRYPT(#{member_phone},'GatherStudy')), #{member_email}, now())
+    </insert>
+
+    <!-- 3. 아이디값으로 아이디, 패스워드 정보 갖고오기  -->
+    <select id="getOne" resultType="Members" parameterType="Members">
+        SELECT member_id, member_pwd
+        FROM Members
+        where member_id = #{member_id}
+    </select>
+
+   <!-- 4. 아이디에 대한 회원정보 가져오기(마이페이지 회원정보출력) -->
+    <select id="getMember" resultType="Members" parameterType="String">
+        select member_id, member_pwd, member_name, IFNULL(AES_DECRYPT(UNHEX(member_phone), 'GatherStudy'), member_phone) AS member_phone, member_email, member_joindate from Members
+        where member_id = #{member_id}
+    </select>
+    
+    <!-- 5. 회원정보수정하기 -->
+   <update id="updateMember" parameterType="Members">
+      update Members set member_pwd=#{member_pwd},
+                 member_name=#{member_name}, member_phone=HEX(AES_ENCRYPT(#{member_phone},'GatherStudy')),
+                 member_email=#{member_email}
+      where member_id=#{member_id}
+    </update>
+
+   <!-- 6. 회원정보 삭제하기 -->
+    <delete id="deleteMember" parameterType="Members">
+        delete from Members 
+        where member_id=#{member_id}   
+    </delete>
+  
+    <!-- 7. [관리자 계정] 아아이디값으로 아이디, 패스워드 정보 갖고오기  -->
+    <select id="adminGetOne" resultType="Admins" parameterType="Admins">
+        select admin_id, admin_pwd
+        from Admins
+        where admin_id = #{admin_id}
+    </select>
+    
+    
+   <!-- 8.  회원 아이디와 핸드폰 번호 갖고오기 By 이름(name) -->
+   <select id="idSearch" parameterType="Members" resultType="Members">
+      SELECT
+         member_id
+         , IFNULL(AES_DECRYPT(UNHEX(member_phone), 'GatherStudy'), member_phone) AS member_phone
+      FROM Members
+      WHERE member_name = #{member_name}
+   </select>
+</mapper>

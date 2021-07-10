@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "HTTP://mybatis.org/dtd/mybatis-3-config.dtd">
+
+ <!--  
+ 	typeAliases => 상위패키지명.하위패키지명...불러올 클래스명(별칭을 부여할 때 사용하는 태그)
+ 	mappers => 접속시 불러올 테이블에 대한 정보 xml파일을 지정 / resource="패키지명/불러올 xml파일명"
+ -->
+ 
+ <configuration>
+ 	<typeAliases>
+ 		<typeAlias type="com.cafe.domain.CafeDTO" alias="Cafe"/>	
+  		<typeAlias type="com.reservation.domain.ReservationDTO" alias="Reservation"/>			
+  		<typeAlias type="com.reservation.domain.MemberOrderListDTO" alias="MemberOrderList"/>			
+  		<typeAlias type="com.members.domain.MembersDTO" alias="Members"/>	
+  		<typeAlias type="com.members.domain.AdminDTO" alias="Admins"/>	
+  		<typeAlias type="com.notice.domain.NoticeDTO" alias="Notice"/>	
+  		<typeAlias type="com.evaluation.domain.EvaluationDTO" alias="Evaluation"/>
+  		<typeAlias type="com.evaluation.domain.EvaluationReplyDTO" alias="EvaluationReply"/>
+  		<typeAlias type="com.evaluation.domain.TotalEvaluationDTO" alias="TotalEvaluation"/>	
+  		<typeAlias type="com.help.domain.HelpDTO" alias="Help"/>
+  		<typeAlias type="com.findMember.domain.FindDTO" alias="Find"/>
+  		<typeAlias type="com.findMember.domain.FindReplyDTO" alias="FindReply"/>
+ 	</typeAliases>	
+ 
+ 	<mappers>
+		<mapper resource="mapper/CafeMapper.xml"/>
+		<mapper resource="mapper/MembersMapper.xml"/>
+		<mapper resource="mapper/ReservationMapper.xml"/>
+		<mapper resource="mapper/HelpMapper.xml"/>
+		<mapper resource="mapper/NoticeMapper.xml"/>
+		<mapper resource="mapper/FindMemberMapper.xml"/>
+		<mapper resource="mapper/EvaluationMapper.xml"/>
+ 	</mappers>
+ </configuration>

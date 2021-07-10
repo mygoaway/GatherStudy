@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="help">
+
+<!--1.도움말 목록보기  -->
+<select  id="helpList"  parameterType="map"  resultType="Help"  >
+    select help_number, help_title, help_content, DATE_FORMAT(help_regdate, '%Y.%m.%d.') AS help_regdate, help_hit, admin_id
+                from (select * from Help
+                   <where>
+                     <if test="keyWord!=null and keyField=='title'">
+                            help_title like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                     <if test="keyWord!=null and keyField=='content'">
+                            help_content like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                     <if test="keyWord!=null and keyField=='all'">
+                            help_title like CONCAT('%',#{keyWord},'%')   or
+                            help_content like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                   </where>     
+                   order by help_number desc) a limit #{start}, #{end}   
+</select>
+
+<!--2.검색어에 해당하는 총레코드수 구하기 -->
+ <select id="selectAll" parameterType="map" resultType="Integer">
+    select count(*) from Help
+                <where>
+                     <if test="keyWord!=null and keyField=='title'">
+                            help_title like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                     <if test="keyWord!=null and keyField=='content'">
+                            help_content like CONCAT('%',#{keyWord},'%') 
+                     </if>
+                     <if test="keyWord!=null and keyField=='all'">
+                            (help_title like CONCAT('%',#{keyWord},'%')   or
+                            help_content like CONCAT('%',#{keyWord},'%'))
+                     </if>
+                 </where>
+ </select>
+ 
+<!-- 3.도움말 쓰기 -->
+<insert id="helpWrite" parameterType="Help">
+    insert into Help(help_title, help_content, help_regdate, help_hit, admin_id)
+    values(#{help_title}, #{help_content}, now(), 0, #{admin_id})
+</insert>
+
+<!-- 4.도움말 상세보기(조회수증가)  -->
+<update id="updateReadcntUp" parameterType="int">
+   update Help set help_hit=help_hit+1 where help_number=#{help_number}
+</update>
+
+<!-- 5.도움말 번호에 해당하는 레코드 한개 얻어오기 -->
+<select id="retrieveGet" parameterType="int" resultType="Help">
+    select * from Help where help_number=#{help_number}
+</select>
+ 
+<!-- 6.도움말 수정하기 -->
+<update id="helpUpdate" parameterType="Help">
+ 	update Help set help_title=#{help_title}, help_content=#{help_content} where help_number=#{help_number}
+</update>
+ 
+<!-- 7.도움말 삭제하기 -->
+<delete id='helpDelete' parameterType="int">
+	delete from Help where help_number=#{help_number}
+</delete>
+ 
+</mapper>
