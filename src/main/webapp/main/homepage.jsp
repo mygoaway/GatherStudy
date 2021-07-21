@@ -24,7 +24,7 @@
     <div class="slider-inner">
         <div id="da-slider" class="da-slider">
             <div class="da-slide">
-                <h2><i>Study from Anywhere</i> <br /> <i>원하는 곳에서 스터디하세요!</i> <br /></h2>
+                <h2><i>Study from Anywhere</i> <br /> <i>원하는 곳에서 스터디하세요!!</i> <br /></h2>
                 <div class="da-img"></div>
             </div>
             <div class="da-slide">
